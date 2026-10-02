@@ -1,0 +1,191 @@
+{
+  "scope": "static source reviews only",
+  "model": "gpt-6-astra",
+  "workers": [
+    {
+      "task": "W01",
+      "pid": 19044,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:05.580846+00:00",
+      "input_sha256": "5ea8b1755561341d007c43bf5a51c9771875a5000bcd2205cfd37fb7489603f7",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:34.629728+00:00",
+      "result_sha256": "cc20c79cfc9d57d0e42c4dceb0a18028d2b72f64f7d5950cb95d8df332ff6742"
+    },
+    {
+      "task": "W02",
+      "pid": 31308,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:05.587323+00:00",
+      "input_sha256": "ce5db934cb9421755e9101573bced274a938983bcd8add93e52fc7d1f46491ab",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:30.612166+00:00",
+      "result_sha256": "775cca163fa258b74ff81bdfd649edc7802bc658cb8ca4b99fe478da1791ccc1"
+    },
+    {
+      "task": "W03",
+      "pid": 6700,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:05.592655+00:00",
+      "input_sha256": "41112da16aa3e57c31923d22a0fad958333740435a3436bc91e9a9c605c2c80e",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:33.622083+00:00",
+      "result_sha256": "c3dbb5a03a14e4cf09dd4436899d8876334c21e5449eb72903a74d1e8a18c03a"
+    },
+    {
+      "task": "W04",
+      "pid": 41316,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:05.598243+00:00",
+      "input_sha256": "3cb1f581649a47e7c0b933bd89d0378f06d7c36d96373eae40bcd6169a277a1e",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:36.653115+00:00",
+      "result_sha256": "f175bd0072d405368a922e5bacd9cc4554e1afc25d707033a52a98851dee7a52"
+    },
+    {
+      "task": "W05",
+      "pid": 25540,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:31.620927+00:00",
+      "input_sha256": "ff866afd1dfce636fc0033285ba44c5fe9e0d50f1173db83db20180bee739e2a",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:57.673102+00:00",
+      "result_sha256": "e8041b2427212ed843aaddaa04902c7b03e672e2e5200f062faa4e0c24bb24e9"
+    },
+    {
+      "task": "W06",
+      "pid": 9876,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:34.629670+00:00",
+      "input_sha256": "e70a30445c2999ba2ef37d89b6a59ff01350ac466c9cffc7aaf552e63702906f",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:31:02.694815+00:00",
+      "result_sha256": "067774da52a245db6473dde64adbce814ba028d8cb764624350f4ee58b9f8bf9"
+    },
+    {
+      "task": "W07",
+      "pid": 41036,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:35.652628+00:00",
+      "input_sha256": "d8d6ba9b9460d15e1410efb20264b5fafa2791400d9a4af743b5779832d696f6",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:31:01.693566+00:00",
+      "result_sha256": "120f52736bed9f5911239ab297be0761d4efa25664cad3c483ec961810dbd070"
+    },
+    {
+      "task": "W08",
+      "pid": 41988,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:37.663114+00:00",
+      "input_sha256": "530f069c78e7388fe185a31cf7d9823a5dbacab98499346a864ddb822a1e0c84",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:30:57.673683+00:00",
+      "result_sha256": "597e8a716180bd980a06b1a00ff2c67213f42c5eba12299d0d0576330061eb37"
+    },
+    {
+      "task": "W09",
+      "pid": 24108,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:58.682791+00:00",
+      "input_sha256": "6148a58a9249eeeb56f9e725e77034db6ac829988b2cf9d704e8347cd72bd3d2",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:31:20.704338+00:00",
+      "result_sha256": "f735ff732392ec1f4cd8cbc9b7313a8d15688e684244d12c21f86fe745f45ba5"
+    },
+    {
+      "task": "W10",
+      "pid": 17688,
+      "model": "gpt-6-astra",
+      "start_utc": "2026-10-02T13:30:58.691312+00:00",
+      "input_sha256": "22adc740757ab218e9a71c061ee8e2274cc5ed7924b524a1fc51921021881bda",
+      "exit_code": 0,
+      "end_utc": "2026-10-02T13:31:27.708765+00:00",
+      "result_sha256": "3c9b7a275c982881412452bc569ca5211d3a9ca2502cbe07035812d805995878"
+    }
+  ],
+  "overlap_observations": [
+    {
+      "utc": "2026-10-02T13:30:05.580925+00:00",
+      "live_pids": [
+        19044
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:05.587388+00:00",
+      "live_pids": [
+        19044,
+        31308
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:05.592725+00:00",
+      "live_pids": [
+        19044,
+        31308,
+        6700
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:05.598319+00:00",
+      "live_pids": [
+        19044,
+        31308,
+        6700,
+        41316
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:31.621015+00:00",
+      "live_pids": [
+        19044,
+        6700,
+        41316,
+        25540
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:34.629716+00:00",
+      "live_pids": [
+        41316,
+        25540,
+        9876
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:35.652713+00:00",
+      "live_pids": [
+        41316,
+        25540,
+        9876,
+        41036
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:37.663205+00:00",
+      "live_pids": [
+        25540,
+        9876,
+        41036,
+        41988
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:58.682863+00:00",
+      "live_pids": [
+        9876,
+        41036,
+        24108
+      ]
+    },
+    {
+      "utc": "2026-10-02T13:30:58.691387+00:00",
+      "live_pids": [
+        9876,
+        41036,
+        24108,
+        17688
+      ]
+    }
+  ],
+  "not_test_results": true
+}

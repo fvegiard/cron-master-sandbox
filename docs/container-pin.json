@@ -1,0 +1,7 @@
+{
+  "image": "docker.io/library/python:3.14-slim",
+  "digest": "sha256:0741d101873c12ab927e6f8653feb8862b9bd58771177acb1b885b95141f91b4",
+  "source": "docker buildx imagetools inspect python:3.14-slim",
+  "verified_utc": "2026-10-02T13:48:33.215568+00:00",
+  "runtime_validation": "see GitHub Actions"
+}
