@@ -1,0 +1,138 @@
+name: Sandbox validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sandbox-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+jobs:
+  python:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, python: '3.11'}
+          - {os: ubuntu-24.04, python: '3.13'}
+          - {os: ubuntu-24.04, python: '3.14'}
+          - {os: ubuntu-26.04, python: '3.14'}
+          - {os: windows-2025, python: '3.14'}
+          - {os: macos-26, python: '3.14'}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-test.txt
+      - run: python scripts/check_public.py
+      - run: python -m coverage run scripts/run_ci.py
+      - name: Coverage evidence
+        if: always()
+        shell: bash
+        run: |
+          python -m coverage combine
+          python -m coverage json -o reports/coverage.json
+          python -m coverage report
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: python-${{ matrix.os }}-${{ matrix.python }}
+          path: reports/
+          retention-days: 14
+  docker:
+    name: Network-denied read-only sandbox
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - name: Build and verify isolated container
+        shell: bash
+        run: |
+          mkdir -p reports
+          docker build --pull -t cron-master-sandbox .
+          docker image inspect cron-master-sandbox > reports/image.json
+          cid=$(docker create --label purpose=cron-master-sandbox --network none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 128 --memory 1g --cpus 2 --tmpfs /tmp:rw,nosuid,nodev,size=268435456 --env REPORT_DIR=/tmp/reports cron-master-sandbox python scripts/sandbox_probe.py)
+          trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+          docker inspect "$cid" > reports/container.json
+          python -c 'import json; c=json.load(open("reports/container.json"))[0]; h=c["HostConfig"]; assert h["NetworkMode"]=="none" and h["ReadonlyRootfs"] and h["CapDrop"]==["ALL"] and not c["Mounts"] and c["Config"]["User"]=="10001:10001"'
+          docker start --attach "$cid" | tee reports/sandbox.log
+          code=$(docker inspect --format '{{.State.ExitCode}}' "$cid")
+          test "$code" -eq 0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with: {name: linux-container-boundaries, path: reports/, retention-days: 14}
+  promptfoo:
+    name: Deterministic evaluator and negative control
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PROMPTFOO_DISABLE_TELEMETRY: '1'
+      PROMPTFOO_DISABLE_UPDATE: '1'
+      PROMPTFOO_CONFIG_DIR: ${{ runner.temp }}/promptfoo-state
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_GC: '1'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/evaluator-browsers
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with: {python-version: '3.14'}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with: {node-version: '24'}
+      - run: python -m pip install -r requirements-test.txt
+      - run: npm install --prefix "$RUNNER_TEMP/evaluator" --no-audit --no-fund --save-exact promptfoo@0.123.1
+      - name: Verify actual outputs and mutation detection
+        shell: bash
+        run: |
+          mkdir -p reports
+          python scripts/sync_cases.py
+          export CRON_MASTER_PYTHON="$(command -v python)"
+          pf="$RUNNER_TEMP/evaluator/node_modules/.bin/promptfoo"
+          "$pf" eval -c eval/promptfooconfig.json --no-cache --no-write --no-share --no-progress-bar --no-table -o reports/eval.json
+          set +e
+          "$pf" eval -c eval/negative-control.json --no-cache --no-write --no-share --no-progress-bar --no-table -o reports/negative.json
+          rc=$?
+          set -e
+          test "$rc" -eq 100
+          python scripts/verify_eval.py reports/eval.json reports/negative.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with: {name: deterministic-evaluation, path: reports/, retention-days: 14}
+  browser:
+    name: Isolated browser and cache containment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_GC: '1'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/isolated-playwright
+      PW_ROOT: ${{ runner.temp }}/pw
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with: {node-version: '24'}
+      - name: Install only in disposable runner paths
+        run: |
+          printf 'unrelated-cache-sentinel' > "$RUNNER_TEMP/unrelated-cache-keep"
+          sha256sum "$RUNNER_TEMP/unrelated-cache-keep" > "$RUNNER_TEMP/before.sha256"
+          npm install --prefix "$PW_ROOT" --ignore-scripts --no-audit --no-fund --save-exact playwright-core@1.62.0
+          node "$PW_ROOT/node_modules/playwright-core/cli.js" install --with-deps chromium
+      - name: Bounded offline browser smoke test
+        run: |
+          mkdir -p reports
+          timeout --kill-after=5s 60s node scripts/browser_probe.mjs | tee reports/browser.log
+          sha256sum --check "$RUNNER_TEMP/before.sha256" | tee reports/cache-containment.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with: {name: sandbox-browser-proof, path: reports/, retention-days: 14}
