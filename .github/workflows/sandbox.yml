@@ -98,6 +98,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p reports
+          node eval/test-grader.cjs
           python scripts/sync_cases.py
           export CRON_MASTER_PYTHON="$(command -v python)"
           pf="$RUNNER_TEMP/evaluator/node_modules/.bin/promptfoo"

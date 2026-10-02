@@ -159,7 +159,7 @@ class MemoryTests(unittest.TestCase):
     def lesson(self, **kw):
         return {'claim':'example','scope':'Cronie; TEST fixture','source_url':'https://github.com/cronie-crond/cronie', 'source_kind':'repository','status':'documented','test_receipts':[], **kw}
     def receipt(self, scope='sandbox', passed=True):
-        obj={'scope':scope,'passed':passed}
+        obj={'scope':scope,'passed':passed,'lesson_scope':'Cronie; TEST fixture','claim_sha256':hashlib.sha256(b'example').hexdigest()}
         if scope=='target': obj['target_id']='TEST'
         p=self.root/'receipt.json'; p.write_text(json.dumps(obj))
         return {'path':'receipt.json','scope':scope,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}

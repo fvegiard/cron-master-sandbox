@@ -19,7 +19,7 @@ if mutant:
 suite=unittest.defaultTestLoader.loadTestsFromName(allowed[sys.argv[1]])
 stream=io.StringIO()
 result=unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
-print(json.dumps({'case_id':sys.argv[1], 'passed':result.wasSuccessful() and not result.skipped and result.testsRun==1,
+print(json.dumps({'case_id':sys.argv[1], 'passed':result.wasSuccessful() and not result.skipped and not result.expectedFailures and not result.unexpectedSuccesses and result.testsRun==1,
                   'tests_run':result.testsRun, 'skipped':len(result.skipped), 'failures':len(result.failures),
-                  'errors':len(result.errors), 'scope':'component-test', 'negative_control':mutant,
+                  'errors':len(result.errors), 'expected_failures':len(result.expectedFailures), 'unexpected_successes':len(result.unexpectedSuccesses), 'scope':'component-test', 'negative_control':mutant,
                   'scheduler_changes':0, 'authorized':False, 'test_log':stream.getvalue()}))

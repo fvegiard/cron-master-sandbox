@@ -106,7 +106,7 @@ class DeepPersistenceTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.ledger.record_session(bad,first['id'])
         self.assertEqual(self.ledger.latest()['id'],first['id'])
     def test_receipt_is_parsed_from_hashed_bytes_only(self):
-        raw=b'{"scope":"sandbox","passed":true}'; (self.root/'receipt.json').write_bytes(raw)
+        raw=json.dumps({'scope':'sandbox','passed':True,'lesson_scope':'fixture-v1','claim_sha256':hashlib.sha256(b'synthetic check').hexdigest()}).encode(); (self.root/'receipt.json').write_bytes(raw)
         item={'claim':'synthetic check','scope':'fixture-v1','source_url':'https://docs.python.org/3/','source_kind':'official','status':'sandbox_verified','test_receipts':[{'path':'receipt.json','sha256':hashlib.sha256(raw).hexdigest(),'scope':'sandbox'}]}
         with mock.patch('cron_master.load_json', side_effect=AssertionError('receipt reread')):
             result=self.ledger.record_lesson(item,self.root)

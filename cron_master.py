@@ -20,7 +20,7 @@ from typing import Any
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-VERSION = '0.2.1'
+VERSION = '0.3.0'
 MAX_JSON_BYTES = 5_000_000
 PROTECTED = {'remote-access', 'security', 'backup', 'business-sync', 'system', 'active-work', 'openhands'}
 BOOL_FIELDS = {'enabled', 'exe_exists', 'retired_by_owner', 'dependencies_checked',
@@ -32,7 +32,7 @@ NUM_FIELDS = {'runtime_p95_seconds', 'interval_seconds', 'timeout_seconds',
 TEXT_FIELDS = {'id', 'name', 'scheduler', 'target', 'owner', 'version', 'action_type',
                'exe', 'result_semantics', 'effect_identity', 'revision', 'timezone',
                'schedule', 'dependency_receipt', 'retirement_receipt', 'backup_receipt',
-               'replacement_receipt', 'notes', 'observed_at'}
+               'replacement_receipt', 'notes', 'observed_at', 'result_namespace'}
 JOB_FIELDS = BOOL_FIELDS | NUM_FIELDS | TEXT_FIELDS | {'tags', 'evidence', 'last_result'}
 ACTIONS = {'KEEP', 'INVESTIGATE', 'ENABLE_CANDIDATE', 'DISABLE_CANDIDATE',
            'DELETE_CANDIDATE', 'CREATE_CANDIDATE', 'OPTIMIZE_CANDIDATE'}
@@ -60,16 +60,25 @@ def _no_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
     return out
 
 
-def load_json(path: str | Path) -> Any:
-    data = Path(path).read_bytes()
+def parse_json_bytes(data: bytes) -> Any:
+    """Validate and decode the same bounded byte snapshot used for integrity checks."""
     if len(data) > MAX_JSON_BYTES:
         raise ValueError('JSON input exceeds 5 MB limit')
-    return json.loads(data.decode('utf-8-sig'), object_pairs_hook=_no_duplicate_keys,
-                      parse_constant=lambda s: (_ for _ in ()).throw(ValueError(f'invalid JSON number: {s}')))
+    try:
+        return json.loads(data.decode('utf-8-sig'), object_pairs_hook=_no_duplicate_keys,
+                          parse_constant=lambda s: (_ for _ in ()).throw(ValueError(f'invalid JSON number: {s}')))
+    except RecursionError as exc:
+        raise ValueError('JSON nesting exceeds supported depth') from exc
+
+
+def load_json(path: str | Path) -> Any:
+    with Path(path).open('rb') as stream:
+        data = stream.read(MAX_JSON_BYTES + 1)
+    return parse_json_bytes(data)
 
 
 def validate_inventory(inv: dict) -> dict:
-    if not isinstance(inv, dict) or inv.get('schema_version') != 1:
+    if not isinstance(inv, dict) or type(inv.get('schema_version')) is not int or inv.get('schema_version') != 1:
         raise ValueError('inventory must be an object with schema_version=1')
     allowed = {'schema_version', 'target', 'observed_at', 'coverage', 'jobs', 'notes'}
     if set(inv) - allowed:
@@ -83,7 +92,7 @@ def validate_inventory(inv: dict) -> dict:
     if not isinstance(inv.get('coverage'), dict):
         raise ValueError('explicit coverage is required')
     for backend, status in inv['coverage'].items():
-        if not isinstance(backend, str) or status not in {'complete', 'partial', 'not_checked', 'unavailable'}:
+        if not isinstance(backend, str) or not backend.strip() or not isinstance(status, str) or status not in {'complete', 'partial', 'not_checked', 'unavailable'}:
             raise ValueError('coverage states: complete, partial, not_checked, unavailable')
     if not isinstance(inv.get('jobs'), list) or len(inv['jobs']) > 10000:
         raise ValueError('jobs must be a list with at most 10000 entries')
@@ -105,11 +114,15 @@ def validate_inventory(inv: dict) -> dict:
                 raise ValueError(f'{field} must be boolean or null')
         for field in NUM_FIELDS:
             value = job.get(field)
-            if value is not None and (type(value) not in (int, float) or not math.isfinite(value) or value < 0):
+            if value is not None and (type(value) not in (int, float) or (isinstance(value, float) and not math.isfinite(value)) or value < 0):
                 raise ValueError(f'{field} must be a finite nonnegative number or null')
         for field in TEXT_FIELDS:
             if field in job and job[field] is not None and not isinstance(job[field], str):
                 raise ValueError(f'{field} must be a string or null')
+        if job.get('owner') is not None and not job['owner'].strip():
+            raise ValueError('owner must be meaningful text or null')
+        if job.get('result_namespace') not in (None, 'scheduler_status', 'application_exit', 'unknown'):
+            raise ValueError('unknown result namespace')
         for field in ('tags', 'evidence'):
             if field in job and (not isinstance(job[field], list) or any(not isinstance(x, str) for x in job[field])):
                 raise ValueError(f'{field} must be a string list')
@@ -129,12 +142,14 @@ def result_class(job: dict) -> str:
     if code is None:
         return 'unknown'
     code &= 0xffffffff
-    if job['scheduler'] == 'windows':
+    if job['scheduler'] == 'windows' and job.get('result_namespace') != 'application_exit':
         statuses = {0x41300: 'ready_status', 0x41301: 'running_status',
                     0x41302: 'disabled_status', 0x41303: 'never_run_status',
                     0x41304: 'no_more_runs_status', 0x41306: 'terminated_status',
                     0x41307: 'no_valid_triggers_status', 0x41308: 'event_trigger_status'}
         if code in statuses:
+            if job.get('result_semantics') and job.get('result_namespace') != 'scheduler_status':
+                return 'ambiguous_status_namespace'
             return statuses[code]
     if job.get('result_semantics') == 'robocopy':
         return 'copy_no_failure_reported' if 0 <= code < 8 else 'copy_failure_reported'
@@ -188,8 +203,10 @@ def audit(inv: dict, desired: dict | None = None, quarantine_days: int = 14, *,
             propose(job, 'INVESTIGATE', 'An executable target was reported missing; reconcile expected installation and identity.',
                     ['Recheck under actual task account and environment.', 'Confirm whether launcher or payload is missing.', 'Restore intended supported target or propose disabling stale registration.'])
         if classification in {'copy_failure_reported', 'nonzero_requires_interpretation',
-                               'terminated_status', 'no_valid_triggers_status'}:
+                               'terminated_status', 'no_valid_triggers_status', 'ambiguous_status_namespace'}:
             propose(job, 'INVESTIGATE', f'Reported result is {classification}; correlate this run with logs and side effects, not task name alone.')
+        if classification == 'disabled_status' and job.get('enabled') is True:
+            propose(job, 'INVESTIGATE', 'Enabled flag conflicts with reported disabled status; reconcile observation times and namespaces.')
         if job.get('enabled') is True and job.get('retired_by_owner') is True:
             propose(job, 'DISABLE_CANDIDATE', 'Owner-retired job is still enabled; review a reversible disable.',
                     ['Authenticate owner decision.', 'Check dependencies and running instances.', 'Export definition and verify rollback.'])
@@ -200,7 +217,7 @@ def audit(inv: dict, desired: dict | None = None, quarantine_days: int = 14, *,
                 propose(job, 'DELETE_CANDIDATE', 'Disabled quarantine and retirement evidence are present; human review remains mandatory.',
                         ['Authenticate receipts; flags are not authorization.', 'Re-read revision and dependencies immediately before change.', 'Test restoration without triggering duplicate side effects.'])
         # Missing timeout is not the same as explicitly unlimited. Daemons may need unlimited.
-        if job.get('enabled') is True and job.get('timeout_seconds') == 0 and 'daemon' not in job.get('tags', []):
+        if job.get('enabled') is True and job.get('timeout_seconds') == 0 and 'daemon' not in {tag.strip().casefold() for tag in job.get('tags', [])}:
             propose(job, 'OPTIMIZE_CANDIDATE', 'Finite-work job has an explicitly unlimited runtime; size a bound from real durations and recovery needs.')
         if job.get('enabled') is True and job.get('restart_count') is not None and job['restart_count'] > 5:
             propose(job, 'OPTIMIZE_CANDIDATE', 'Retry count exceeds the review threshold of 5; check backoff, failure class and loop amplification.')
@@ -250,7 +267,7 @@ def audit(inv: dict, desired: dict | None = None, quarantine_days: int = 14, *,
             'coverage': inv['coverage'], 'job_count': len(inv['jobs']), 'results': results,
             'assessed_at': now.isoformat(), 'historical_replay': as_of is not None,
             'inventory_age_seconds': age, 'fresh_for_triage': fresh, 'max_age_seconds': max_age_seconds,
-            'proposals': proposals, 'scheduler_changes': 0,
+            'proposals': proposals, 'scheduler_changes': 0, 'authorized': False, 'automatic_execution': False,
             'limits': ['Input evidence requires independent verification.', 'No native schedule parsing or cron execution.',
                        'No automatic permission grants, writes, enable, disable or delete.', 'No complete health claim from absence of findings.']}
 
@@ -275,8 +292,13 @@ class Ledger:
     Ledger records are assertions, not signed attestations. No secrets should be stored.
     Session compare-and-swap prevents lost updates, not all external scheduler races.
     """
-    def __init__(self, path: str | Path):
+    def __init__(self, path: str | Path, *, read_only: bool = False):
         p = Path(path)
+        if read_only:
+            if not p.is_file():
+                raise FileNotFoundError('Existing ledger is required for read-only inspection')
+            self.db = sqlite3.connect(p.resolve().as_uri() + '?mode=ro', uri=True, timeout=10)
+            return
         p.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(p, timeout=10)
         self.db.execute('PRAGMA journal_mode=WAL')
@@ -304,7 +326,7 @@ class Ledger:
             raise ValueError('session target must be nonempty text')
         if not isinstance(data['next_action'], str) or not data['next_action'].strip():
             raise ValueError('session next_action must be nonempty text')
-        if not isinstance(data['coverage'], dict) or any(not isinstance(k, str) or v not in {'complete', 'partial', 'not_checked', 'unavailable'} for k, v in data['coverage'].items()):
+        if not isinstance(data['coverage'], dict) or any(not isinstance(k, str) or not k.strip() or not isinstance(v, str) or v not in {'complete', 'partial', 'not_checked', 'unavailable'} for k, v in data['coverage'].items()):
             raise ValueError('session coverage must contain explicit valid backend states')
         for key in ('open_items', 'research_receipts'):
             if not isinstance(data[key], list) or any(not isinstance(x, (str, dict)) for x in data[key]):
@@ -349,9 +371,9 @@ class Ledger:
         url = urlparse(item['source_url'])
         if url.scheme != 'https' or not url.hostname or url.username or url.password:
             raise ValueError('source must be an HTTPS URL without credentials')
-        if item['source_kind'] not in {'official', 'repository', 'first_hand_community'}:
+        if not isinstance(item['source_kind'], str) or item['source_kind'] not in {'official', 'repository', 'first_hand_community'}:
             raise ValueError('unrecognized source kind')
-        if item['status'] not in {'candidate', 'documented', 'sandbox_verified', 'target_verified'}:
+        if not isinstance(item['status'], str) or item['status'] not in {'candidate', 'documented', 'sandbox_verified', 'target_verified'}:
             raise ValueError('unrecognized lesson status')
         if item['status'] != 'candidate' and item['source_kind'] == 'first_hand_community':
             raise ValueError('community lead needs a primary source before promotion')
@@ -372,16 +394,23 @@ class Ledger:
                 raise ValueError('receipt must be an existing file inside artifact root')
             if path.stat().st_size > MAX_JSON_BYTES:
                 raise ValueError('receipt too large')
-            content = path.read_bytes()
+            with path.open('rb') as stream:
+                content = stream.read(MAX_JSON_BYTES + 1)
+            if len(content) > MAX_JSON_BYTES:
+                raise ValueError('receipt too large')
             if hashlib.sha256(content).hexdigest() != receipt['sha256']:
                 raise ValueError('receipt hash mismatch')
-            parsed = load_json(path)
+            parsed = parse_json_bytes(content)
             if not isinstance(parsed, dict) or parsed.get('passed') is not True or parsed.get('scope') != receipt['scope']:
                 raise ValueError('receipt must report passed=true with matching scope')
             if receipt['scope'] not in {'sandbox', 'target'}:
                 raise ValueError('receipt scope must be sandbox or target')
             if receipt['scope'] == 'target' and (not item.get('target_id') or parsed.get('target_id') != item['target_id']):
                 raise ValueError('target receipt must match the lesson target_id exactly')
+            if item['status'] in {'sandbox_verified', 'target_verified'}:
+                claim_hash = hashlib.sha256(item['claim'].encode('utf-8')).hexdigest()
+                if parsed.get('lesson_scope') != item['scope'] or parsed.get('claim_sha256') != claim_hash:
+                    raise ValueError('receipt is not bound to the exact lesson claim and version scope')
             validated_scopes.add(receipt['scope'])
         expected = {'sandbox_verified': 'sandbox', 'target_verified': 'target'}.get(item['status'])
         if expected and expected not in validated_scopes:
@@ -394,6 +423,8 @@ class Ledger:
 
 
 def research_plan(checkpoint: dict) -> dict:
+    if not isinstance(checkpoint, dict):
+        raise ValueError('research checkpoint must be an object')
     products = ['Cronie', 'systemd timer', 'Windows Task Scheduler', 'GitHub Actions schedule', 'OpenClaw automations']
     return {'executed': False, 'purpose': 'Queries to execute through authorized browser/GitHub tools; not a completed research check.',
             'previous_session_reference': checkpoint.get('id', checkpoint.get('historical_reference', 'unknown')),
@@ -428,7 +459,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == 'research-plan':
             out = research_plan(load_json(args.checkpoint))
         else:
-            ledger = Ledger(args.db)
+            ledger = Ledger(args.db, read_only=args.command in {'session-show', 'lesson-list'})
             if args.command == 'session-show':
                 out = ledger.latest()
             elif args.command == 'lesson-list':
@@ -439,8 +470,8 @@ def main(argv: list[str] | None = None) -> int:
                 out = ledger.record_lesson(load_json(args.record), args.artifact_root)
         print(json.dumps(out, indent=2, ensure_ascii=False, allow_nan=False))
         return 0
-    except (ValueError, TypeError, KeyError, OSError, sqlite3.Error, ZoneInfoNotFoundError) as exc:
-        print(json.dumps({'error': str(exc), 'scheduler_changes': 0}), file=sys.stderr)
+    except (ValueError, TypeError, KeyError, OSError, OverflowError, RecursionError, sqlite3.Error, ZoneInfoNotFoundError) as exc:
+        print(json.dumps({'error': str(exc), 'scheduler_changes': 0, 'authorized': False}), file=sys.stderr)
         return 2
     finally:
         if ledger is not None:

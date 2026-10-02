@@ -35,7 +35,7 @@ class W5RegressionTests(unittest.TestCase):
     def check_target_receipt(self, observed, declared, accept):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td); ledger = Ledger(root / 'state.sqlite')
-            payload = json.dumps({'scope':'target','passed':True,'target_id':observed}).encode()
+            payload = json.dumps({'scope':'target','passed':True,'target_id':observed,'lesson_scope':'Cronie; TEST fixture','claim_sha256':hashlib.sha256(b'fixture only').hexdigest()}).encode()
             (root / 'receipt.json').write_bytes(payload)
             receipt = {'path':'receipt.json','scope':'target','sha256':hashlib.sha256(payload).hexdigest()}
             item = {'claim':'fixture only','scope':'Cronie; TEST fixture','source_url':'https://github.com/cronie-crond/cronie','source_kind':'repository','status':'target_verified','test_receipts':[receipt]}
