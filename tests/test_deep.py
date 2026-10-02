@@ -91,7 +91,9 @@ class DeepPersistenceTests(unittest.TestCase):
         self.assertEqual(self.ledger.db.execute('select count(*) from sessions').fetchone()[0],1)
     def test_backup_restores_committed_checkpoint(self):
         first=self.ledger.record_session(self.record,None); dest=self.root/'backup.sqlite'
-        with sqlite3.connect(dest) as conn: self.ledger.db.backup(conn)
+        conn=sqlite3.connect(dest)
+        try: self.ledger.db.backup(conn)
+        finally: conn.close()
         recovered=Ledger(dest)
         try: self.assertEqual(recovered.latest()['id'],first['id'])
         finally: recovered.close()

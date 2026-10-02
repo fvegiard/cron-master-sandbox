@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cron Master 0.1: deterministic read-only triage and local session ledger.
+"""Cron Master sandbox: deterministic read-only triage and local session ledger.
 
 No scheduler writes, command execution, model API calls or network requests.
 Evidence fields supplied by adapters are assertions, not authentication.
