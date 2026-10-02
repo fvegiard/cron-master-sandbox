@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 VERSION = '0.3.0'
 MAX_JSON_BYTES = 5_000_000
+MAX_JSON_DEPTH = 128
 PROTECTED = {'remote-access', 'security', 'backup', 'business-sync', 'system', 'active-work', 'openhands'}
 BOOL_FIELDS = {'enabled', 'exe_exists', 'retired_by_owner', 'dependencies_checked',
                'dependencies_clear', 'replacement_verified', 'backup_verified',
@@ -64,8 +65,28 @@ def parse_json_bytes(data: bytes) -> Any:
     """Validate and decode the same bounded byte snapshot used for integrity checks."""
     if len(data) > MAX_JSON_BYTES:
         raise ValueError('JSON input exceeds 5 MB limit')
+    decoded = data.decode('utf-8-sig')
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in decoded:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == chr(92):
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in '[{':
+            depth += 1
+            if depth > MAX_JSON_DEPTH:
+                raise ValueError('JSON nesting exceeds supported depth of 128')
+        elif char in ']}':
+            depth -= 1
     try:
-        return json.loads(data.decode('utf-8-sig'), object_pairs_hook=_no_duplicate_keys,
+        return json.loads(decoded, object_pairs_hook=_no_duplicate_keys,
                           parse_constant=lambda s: (_ for _ in ()).throw(ValueError(f'invalid JSON number: {s}')))
     except RecursionError as exc:
         raise ValueError('JSON nesting exceeds supported depth') from exc

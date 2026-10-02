@@ -110,3 +110,17 @@ class ReviewedCLITests(unittest.TestCase):
         data=json.loads(result.stdout)
         self.assertIs(data['passed'],False); self.assertEqual(data['expected_failures'],1)
         self.assertEqual(data['tests_run'],1); self.assertEqual(data['errors'],0)
+
+class JSONDepthContractTests(unittest.TestCase):
+    def test_exact_depth_limit_is_accepted(self):
+        from cron_master import parse_json_bytes, MAX_JSON_DEPTH
+        raw=('['*MAX_JSON_DEPTH+'0'+']'*MAX_JSON_DEPTH).encode()
+        self.assertEqual(len(parse_json_bytes(raw)),1)
+    def test_exceeding_depth_limit_is_rejected(self):
+        from cron_master import parse_json_bytes, MAX_JSON_DEPTH
+        raw=('['*(MAX_JSON_DEPTH+1)+'0'+']'*(MAX_JSON_DEPTH+1)).encode()
+        with self.assertRaises(ValueError): parse_json_bytes(raw)
+    def test_brackets_and_escaped_quotes_in_strings_are_not_depth(self):
+        from cron_master import parse_json_bytes
+        expected={'text':'['*2000+'}'*2000+chr(92)+'"[]'}
+        self.assertEqual(parse_json_bytes(json.dumps(expected).encode()),expected)
