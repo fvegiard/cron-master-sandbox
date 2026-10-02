@@ -1,0 +1,582 @@
+{
+  "description": "Cron Master component regressions. Fixture tests; NOT production or full-agent certification.",
+  "prompts": [
+    "Run fixed component regression {{case_id}}"
+  ],
+  "providers": [
+    {
+      "id": "file://provider.mjs"
+    }
+  ],
+  "defaultTest": {
+    "assert": [
+      {
+        "type": "javascript",
+        "value": "file://assert-component.cjs"
+      }
+    ]
+  },
+  "tests": [
+    {
+      "description": "test_cron_master.GovernanceTests.test_active_match_prevents_create",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_active_match_prevents_create"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_declared_complete_allows_create_candidate",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_declared_complete_allows_create_candidate"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_delete_requires_more_than_disabled",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_delete_requires_more_than_disabled"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_different_effects_not_dedup",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_different_effects_not_dedup"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_existing_disabled_requires_reason_before_enable",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_existing_disabled_requires_reason_before_enable"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_fingerprint_changes_when_revision_changes",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_fingerprint_changes_when_revision_changes"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_future_inventory_blocks_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_future_inventory_blocks_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_invalid_dependency_state_blocks_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_invalid_dependency_state_blocks_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_live_retired_disable_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_live_retired_disable_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_missing_receipt_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_missing_receipt_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_no_apply_authority",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_no_apply_authority"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_partial_coverage_blocks_create",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_partial_coverage_blocks_create"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_protected_business_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_protected_business_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_protected_openhands_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_protected_openhands_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_protected_remote_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_protected_remote_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_replay_is_explicit",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_replay_is_explicit"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_retired_requirement_conflict",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_retired_requirement_conflict"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_retirement_all_gates_candidate_only",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_retirement_all_gates_candidate_only"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_same_effect_review_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_same_effect_review_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_same_name_not_dedup",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_same_name_not_dedup"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_short_quarantine_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_short_quarantine_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_stale_inventory_blocks_create",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_stale_inventory_blocks_create"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_stale_inventory_blocks_enable",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_stale_inventory_blocks_enable"
+      }
+    },
+    {
+      "description": "test_cron_master.GovernanceTests.test_unowned_not_delete",
+      "vars": {
+        "case_id": "test_cron_master.GovernanceTests.test_unowned_not_delete"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_boolean_exitcode_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_boolean_exitcode_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_canonical_order_stable",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_canonical_order_stable"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_duplicate_ids_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_duplicate_ids_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_duplicate_json_key_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_duplicate_json_key_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_effect_identity_not_shell_executed",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_effect_identity_not_shell_executed"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_naive_observation_time_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_naive_observation_time_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_nan_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_nan_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_negative_duration_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_negative_duration_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_string_bool_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_string_bool_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_unknown_fields_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_unknown_fields_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.InputTests.test_wrong_target_rejected",
+      "vars": {
+        "case_id": "test_cron_master.InputTests.test_wrong_target_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_community_candidate_accepted",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_community_candidate_accepted"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_community_cannot_self_promote",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_community_cannot_self_promote"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_continuity_after_reopen",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_continuity_after_reopen"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_credential_url_rejected",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_credential_url_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_empty_ledger",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_empty_ledger"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_failed_receipt_not_promoted",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_failed_receipt_not_promoted"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_http_source_rejected",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_http_source_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_idempotent_lesson_insert",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_idempotent_lesson_insert"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_lesson_is_data_not_authority",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_lesson_is_data_not_authority"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_lessons_isolated_by_version_scope",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_lessons_isolated_by_version_scope"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_path_traversal_rejected",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_path_traversal_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_receipt_hash_verified",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_receipt_hash_verified"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_research_queries_are_not_research_claim",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_research_queries_are_not_research_claim"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_sandbox_not_target_proof",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_sandbox_not_target_proof"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_sandbox_requires_receipt",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_sandbox_requires_receipt"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_second_connection_cannot_overwrite_checkpoint",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_second_connection_cannot_overwrite_checkpoint"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_stale_writer_preserves_record",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_stale_writer_preserves_record"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_stale_writer_rejected",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_stale_writer_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_target_receipt_requires_target_id",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_target_receipt_requires_target_id"
+      }
+    },
+    {
+      "description": "test_cron_master.MemoryTests.test_valid_receipt_integrity_not_authentication",
+      "vars": {
+        "case_id": "test_cron_master.MemoryTests.test_valid_receipt_integrity_not_authentication"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_absent_timeout_not_unlimited",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_absent_timeout_not_unlimited"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_com_handler_not_missing_executable",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_com_handler_not_missing_executable"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_daemon_unlimited_is_not_automatic_fault",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_daemon_unlimited_is_not_automatic_fault"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_disabled_missed_runs_not_enable",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_disabled_missed_runs_not_enable"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_finite_job_unlimited_needs_review",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_finite_job_unlimited_needs_review"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_long_job_with_lock_still_throughput_risk",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_long_job_with_lock_still_throughput_risk"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_missing_executable_investigate_only",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_missing_executable_investigate_only"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_never_run_is_not_failure",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_never_run_is_not_failure"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_no_code_unknown",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_no_code_unknown"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_retry_storm_candidate",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_retry_storm_candidate"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_robocopy_all_non_failure_codes",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_robocopy_all_non_failure_codes"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_robocopy_eight_is_failure",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_robocopy_eight_is_failure"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_robocopy_three_is_not_failure",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_robocopy_three_is_not_failure"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_running_is_not_failure",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_running_is_not_failure"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_signed_hresult_interpreted_consistently",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_signed_hresult_interpreted_consistently"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_success_hresult_warning_not_green",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_success_hresult_warning_not_green"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_unknown_enabled_not_healthy",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_unknown_enabled_not_healthy"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_unknown_owner_blocks_silent_keep",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_unknown_owner_blocks_silent_keep"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_unrecognized_nonzero",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_unrecognized_nonzero"
+      }
+    },
+    {
+      "description": "test_cron_master.StatusTests.test_zero_not_business_proof",
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_zero_not_business_proof"
+      }
+    },
+    {
+      "description": "test_cron_master.TimeTests.test_autumn_fold",
+      "vars": {
+        "case_id": "test_cron_master.TimeTests.test_autumn_fold"
+      }
+    },
+    {
+      "description": "test_cron_master.TimeTests.test_offset_input_rejected",
+      "vars": {
+        "case_id": "test_cron_master.TimeTests.test_offset_input_rejected"
+      }
+    },
+    {
+      "description": "test_cron_master.TimeTests.test_regular_local_time",
+      "vars": {
+        "case_id": "test_cron_master.TimeTests.test_regular_local_time"
+      }
+    },
+    {
+      "description": "test_cron_master.TimeTests.test_spring_gap",
+      "vars": {
+        "case_id": "test_cron_master.TimeTests.test_spring_gap"
+      }
+    },
+    {
+      "description": "test_cron_master.TimeTests.test_utc_single_instant",
+      "vars": {
+        "case_id": "test_cron_master.TimeTests.test_utc_single_instant"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_future_job_inside_fresh_inventory_blocks_candidate",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_future_job_inside_fresh_inventory_blocks_candidate"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_naive_job_time_rejected",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_naive_job_time_rejected"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_outcome_assertion_not_promoted_to_verified",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_outcome_assertion_not_promoted_to_verified"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_protection_tags_case_insensitive",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_protection_tags_case_insensitive"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_stale_job_inside_fresh_inventory_blocks_candidate",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_stale_job_inside_fresh_inventory_blocks_candidate"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmFreshnessTests.test_unknown_requested_scheduler_blocks_create",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmFreshnessTests.test_unknown_requested_scheduler_blocks_create"
+      }
+    },
+    {
+      "description": "test_swarm_regressions.SwarmLedgerTests.test_return_record_not_later_writers_latest",
+      "vars": {
+        "case_id": "test_swarm_regressions.SwarmLedgerTests.test_return_record_not_later_writers_latest"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_invalid_checkpoint_preserves_previous_head",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_invalid_checkpoint_preserves_previous_head"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_matching_target_receipt_keeps_unattested_status",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_matching_target_receipt_keeps_unattested_status"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_null_quarantine_does_not_allow_delete",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_null_quarantine_does_not_allow_delete"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_null_retry_count_does_not_crash",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_null_retry_count_does_not_crash"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_target_receipt_requires_declared_target",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_target_receipt_requires_declared_target"
+      }
+    },
+    {
+      "description": "test_w5_regressions.W5RegressionTests.test_wrong_target_receipt_rejected",
+      "vars": {
+        "case_id": "test_w5_regressions.W5RegressionTests.test_wrong_target_receipt_rejected"
+      }
+    }
+  ],
+  "evaluateOptions": {
+    "maxConcurrency": 4
+  }
+}

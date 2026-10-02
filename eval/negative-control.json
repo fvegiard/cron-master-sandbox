@@ -1,0 +1,32 @@
+{
+  "description": "Negative control: deliberate Robocopy 3 misclassification MUST FAIL",
+  "prompts": [
+    "Run fixed component regression {{case_id}}"
+  ],
+  "providers": [
+    {
+      "id": "file://provider.mjs",
+      "config": {
+        "negativeControl": true
+      }
+    }
+  ],
+  "defaultTest": {
+    "assert": [
+      {
+        "type": "javascript",
+        "value": "file://assert-component.cjs"
+      }
+    ]
+  },
+  "tests": [
+    {
+      "vars": {
+        "case_id": "test_cron_master.StatusTests.test_robocopy_three_is_not_failure"
+      }
+    }
+  ],
+  "evaluateOptions": {
+    "maxConcurrency": 4
+  }
+}

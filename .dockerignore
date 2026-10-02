@@ -1,0 +1,9 @@
+.git
+__pycache__
+.venv*
+node_modules
+reports
+artifacts
+.env*
+state
+*.sqlite*

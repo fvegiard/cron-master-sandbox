@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "criteria": [
+    {
+      "id": "C01",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Action delivered:** requested change exists on its intended target and the user workflow succeeds.",
+      "negative_case": "A diagnosis, plan, or suggested command is submitted as completion."
+    },
+    {
+      "id": "C02",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Original failure reproduced:** recorded failing invocation and failure signature; identical workflow succeeds after repair, with consequential state checked.",
+      "negative_case": "A different, easier test passes while the original trigger still fails."
+    },
+    {
+      "id": "C03",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Fresh evidence:** timestamps, session identifiers, revision and target bind results to this execution.",
+      "negative_case": "Old successful sessions are mixed with current failures."
+    },
+    {
+      "id": "C04",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Correct execution environment:** actual shell, OS, Windows/WSL boundary, working directory, executable resolution and PATH match the deployed invocation.",
+      "negative_case": "Interactive Windows succeeds; scheduled WSL execution resolves different paths."
+    },
+    {
+      "id": "C05",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Correct machine:** independently observed host identity matches the authorized target and the evidence origin.",
+      "negative_case": "Same username and repository exist on another computer."
+    },
+    {
+      "id": "C06",
+      "weight": 4,
+      "hard_gate": false,
+      "check_and_proof": "**Updater resilience:** controlled updater replay preserves intended node/npm resolution or detects and repairs changed shims before execution.",
+      "negative_case": "Update replaces a shim with an incompatible runtime or wrapper."
+    },
+    {
+      "id": "C07",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Process ownership:** termination records identify owned PID, creation time and task lineage; unrelated processes survive.",
+      "negative_case": "Name-based cleanup encounters another OpenHands instance or a reused PID."
+    },
+    {
+      "id": "C08",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Remote access preserved:** fresh authenticated reconnect succeeds through the access path used before the change.",
+      "negative_case": "Existing session survives while new connections fail."
+    },
+    {
+      "id": "C09",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Selective rollback:** restoration recovers owned changes while unrelated edits remain byte-identical.",
+      "negative_case": "Another worker modifies a shared file after backup."
+    },
+    {
+      "id": "C10",
+      "weight": 3,
+      "hard_gate": false,
+      "check_and_proof": "**Bounded recovery:** attempt, elapsed-time and token counters remain within declared budgets; repeated same-cause failure changes approach or stops with a precise blocker.",
+      "negative_case": "Permanent failure repeatedly triggers identical retries."
+    },
+    {
+      "id": "C11",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Restart continuity:** resumed execution restores scope, ownership, completed steps, pending work and evidence references without repeating committed side effects.",
+      "negative_case": "Restart occurs after an external effect but before local acknowledgement."
+    },
+    {
+      "id": "C12",
+      "weight": 5,
+      "hard_gate": true,
+      "check_and_proof": "**Deployment proof:** actual deployed revision, scheduler invocation and resulting target state are observed.",
+      "negative_case": "Fixtures and green CI pass while deployment remains stale."
+    },
+    {
+      "id": "C13",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Real workers:** at least two distinct worker executions have assigned tasks, execution identifiers, substantive outputs, terminal results and inspected integration records.",
+      "negative_case": "A dispatcher prints worker names without launching workers."
+    },
+    {
+      "id": "C14",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Concurrent-write safety:** overlapping-worker test preserves both intended changes or reports a conflict before publishing.",
+      "negative_case": "Two workers update the same file, task definition or checkpoint simultaneously."
+    },
+    {
+      "id": "C15",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Authorization provenance:** consequential actions map to authorized scope and a trusted instruction source.",
+      "negative_case": "A valid evidence hash accompanies an unauthorized deletion request."
+    },
+    {
+      "id": "C16",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Complete scheduler inventory:** declared discovery scope covers relevant machines, task folders, principals, Windows tasks and Linux/WSL cron or timers; access gaps remain explicit.",
+      "negative_case": "Root crontab, nested task folder, disabled job or inaccessible principal is omitted."
+    },
+    {
+      "id": "C17",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Schedule semantics:** declared dialect and timezone produce expected concrete UTC firing times across DST transitions and calendar boundaries.",
+      "negative_case": "Five-field cron is parsed as six-field; ambiguous or nonexistent local time silently shifts execution."
+    },
+    {
+      "id": "C18",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Duplicate control:** duplicate delivery, overlap and retry tests produce the declared number of business effects.",
+      "negative_case": "Worker crashes after committing an effect, then receives the same job again."
+    },
+    {
+      "id": "C19",
+      "weight": 3,
+      "hard_gate": true,
+      "check_and_proof": "**Dependencies available:** the actual scheduler identity resolves and executes required binaries with required permissions.",
+      "negative_case": "Missing executable is available only through an interactive alias or another account\u2019s PATH."
+    },
+    {
+      "id": "C20",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Status interpretation:** raw scheduler status, process exit and resulting state are retained and classified using component-specific semantics.",
+      "negative_case": "Robocopy exit 3 is called failure; \u201crunning,\u201d \u201cqueued,\u201d or last-run success is called current completion."
+    },
+    {
+      "id": "C21",
+      "weight": 3,
+      "hard_gate": true,
+      "check_and_proof": "**Frontend/backend agreement:** browser-visible state and resulting backend state agree for the same operation and target.",
+      "negative_case": "CDP controls a stale tab or different profile while another backend reports success."
+    },
+    {
+      "id": "C22",
+      "weight": 4,
+      "hard_gate": true,
+      "check_and_proof": "**Untrusted lessons contained:** community material is treated as evidence to verify; applied changes trace to authorized scope and validated technical sources.",
+      "negative_case": "Community advice embeds instructions to disable guards, expose secrets or expand scope."
+    },
+    {
+      "id": "C23",
+      "weight": 2,
+      "hard_gate": false,
+      "check_and_proof": "**Owned-resource cleanup:** temporary workers, sessions and artifacts are inventoried and removed or deliberately retained with purpose.",
+      "negative_case": "An abandoned retry worker continues consuming resources after delivery."
+    },
+    {
+      "id": "C24",
+      "weight": 6,
+      "hard_gate": true,
+      "check_and_proof": "Installation side-effect containment: compare shared resources before/after installation; isolate caches and verify recovery.",
+      "negative_case": "A dependency garbage collector removes browser caches used by another tool."
+    }
+  ],
+  "criterion_count": 24,
+  "weight_total": 100,
+  "minimum_score": 95,
+  "rule": "PASS earns weight; FAIL and UNKNOWN earn zero. Every hard gate must PASS independently. Component tests do not establish workflow or deployment acceptance.",
+  "weight_note": "Design priorities, not benchmark measurements. Six prior weights reduced by one to add C24.",
+  "release_status": "BLOCKED_PENDING_WORKFLOW_AND_TARGET_EVIDENCE"
+}
